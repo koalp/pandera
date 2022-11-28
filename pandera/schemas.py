@@ -407,17 +407,16 @@ class DataFrameSchema:  # pylint: disable=too-many-public-methods
 
                 for matched_colname in matched_columns:
                     if col_schema.coerce or self.coerce:
-                        obj[matched_colname] = _try_coercion(
-                            col_schema.coerce_dtype, obj[matched_colname]
-                        )
+                        if not (tc := _try_coercion(col_schema.coerce_dtype, obj[matched_colname])).equals(obj[matched_colname]):
+                            obj[matched_colname] = tc
+
             elif (
                 (col_schema.coerce or self.coerce)
                 and self.dtype is None
                 and colname in obj
             ):
-                obj[colname] = _try_coercion(
-                    col_schema.coerce_dtype, obj[colname]
-                )
+                if not (tc := _try_coercion(col_schema.coerce_dtype, obj[colname])).equals(obj[colname]):
+                    obj[colname] = tc
 
         if self.dtype is not None:
             obj = _try_coercion(self._coerce_dtype, obj)
